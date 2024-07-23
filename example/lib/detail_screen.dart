@@ -1,12 +1,10 @@
 import 'dart:io';
 
-import 'package:bitmap/bitmap.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_commons/google_mlkit_commons.dart';
 import 'package:image/image.dart' as dartImage;
 import 'package:mrz_scanner/mrz_scanner.dart';
-import 'package:path_provider/path_provider.dart';
 
 class DetailScreen extends StatefulWidget {
   const DetailScreen({
@@ -94,15 +92,6 @@ class _DetailScreenState extends State<DetailScreen> {
     return outImg;
   }
 
-  setImagePath() async {
-    final directory = await getApplicationDocumentsDirectory();
-    imagePath = await File('${directory.path}/legendary.png').create();
-    debugPrint(imagePath!.path);
-    final Uint8List bytes = headedBitmap!.buffer.asUint8List();
-    await imagePath!.writeAsBytes(bytes);
-    setState(() {});
-  }
-// ..
 
   @override
   Widget build(BuildContext context) {
