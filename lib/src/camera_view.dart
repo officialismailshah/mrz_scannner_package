@@ -17,6 +17,8 @@ class MRZCameraView extends StatefulWidget {
     this.loaderBackgroundColor = Colors.red,
     this.loaderActiveColor = Colors.black,
     this.title,
+    this.distanceBottom = 100,
+    this.distaneTop = 100,
     this.showLoader = true,
   }) : super(key: key);
 
@@ -29,6 +31,8 @@ class MRZCameraView extends StatefulWidget {
   final Color loaderBackgroundColor;
   final bool showLoader;
   final Color loaderActiveColor;
+  final double distaneTop;
+  final double distanceBottom;
 
   @override
   MRZCameraViewState createState() => MRZCameraViewState();
@@ -90,14 +94,14 @@ class MRZCameraViewState extends State<MRZCameraView> {
           widget.title == null
               ? const SizedBox()
               : Positioned(
-                  top: 100,
+                  top: widget.distaneTop,
                   child: SizedBox(
                       width: MediaQuery.of(context).size.width,
-                      height: MediaQuery.of(context).size.height * 0.1,
+                      height: MediaQuery.of(context).size.height * 0.15,
                       child: Center(child: widget.title))),
           widget.showLoader
               ? Positioned(
-                  bottom: 100,
+                  bottom: widget.distanceBottom,
                   child: SizedBox(
                     width: MediaQuery.of(context).size.width,
                     child: Center(
