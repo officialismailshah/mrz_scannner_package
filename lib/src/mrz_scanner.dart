@@ -19,6 +19,8 @@ class MRZScanner extends StatefulWidget {
     required this.loaderBackgroundColor,
     required this.showLoader,
     required this.loaderActiveColor,
+    this.topDst = 100,
+    this.bottomDst = 100,
   }) : super(key: controller);
   final Function(MRZResult mrzResult, List<String> lines, InputImage? image)?
       onSuccess;
@@ -31,6 +33,8 @@ class MRZScanner extends StatefulWidget {
   final Color loaderBackgroundColor;
   final bool showLoader;
   final Color loaderActiveColor;
+  final double topDst;
+  final double bottomDst;
   @override
   MRZScannerState createState() => MRZScannerState();
 }
@@ -62,6 +66,8 @@ class MRZScannerState extends State<MRZScanner> {
       loaderBackgroundColor: widget.loaderBackgroundColor,
       backgroundOverlay: widget.backgroundOverlay,
       title: widget.title,
+      distanceBottom: widget.bottomDst,
+      distaneTop: widget.topDst,
     );
   }
 
