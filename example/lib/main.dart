@@ -19,21 +19,38 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-debugShowCheckedModeBanner: false,
+      debugShowCheckedModeBanner: false,
       home: Builder(builder: (context) {
-        return MRZScanner(
-          controller: controller,
-          onSuccess: (mrzResult, lines, img) async {
-            String id = lines.first.substring(15, lines.first.length);
-            Route route = MaterialPageRoute(builder: (context) {
-              return DetailScreen(
-                mrzResult: mrzResult,
-                id: id,
-                image: img,
-              );
-            });
-            Navigator.of(context).push(route);
-          },
+        return SizedBox(
+          width: 200,
+          height: 200,
+          child: MRZScanner(
+            loaderActiveColor: Colors.orange,
+            loaderBackgroundColor: Colors.purple,
+            showLoader: true,
+            title:
+                const Text("Some data to show on the screen during scanning"),
+            backgroundWidget: Container(
+              color: Colors.white,
+            ),
+            backgroundOverlay: Container(
+              color: Colors.orange.withOpacity(0.2),
+            ),
+            controller: controller,
+            onSuccess: (mrzResult, lines, img) async {
+              String id = lines.first.substring(15, lines.first.length);
+
+              Route route = MaterialPageRoute(builder: (context) {
+                return DetailScreen(
+                  mrzResult: mrzResult,
+                  list: lines,
+                  id: id,
+                  image: img,
+                );
+              });
+              Navigator.of(context).push(route);
+            },
+          ),
         );
       }),
     );

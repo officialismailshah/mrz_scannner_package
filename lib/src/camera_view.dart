@@ -1,7 +1,9 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:google_mlkit_commons/google_mlkit_commons.dart';
+
 import 'camera_overlay.dart';
 
 class MRZCameraView extends StatefulWidget {
@@ -10,11 +12,23 @@ class MRZCameraView extends StatefulWidget {
     required this.onImage,
     this.initialDirection = CameraLensDirection.back,
     required this.showOverlay,
+    this.backgroundWidget = const SizedBox(),
+    this.backgroundOverlay = const SizedBox(),
+    this.loaderBackgroundColor = Colors.red,
+    this.loaderActiveColor = Colors.black,
+    this.title,
+    this.showLoader = true,
   }) : super(key: key);
 
   final Function(InputImage inputImage) onImage;
   final CameraLensDirection initialDirection;
   final bool showOverlay;
+  final Widget backgroundWidget;
+  final Widget backgroundOverlay;
+  final Widget? title;
+  final Color loaderBackgroundColor;
+  final bool showLoader;
+  final Color loaderActiveColor;
 
   @override
   MRZCameraViewState createState() => MRZCameraViewState();
@@ -68,56 +82,96 @@ class MRZCameraViewState extends State<MRZCameraView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: widget.showOverlay
-          ? Center(
-              child: SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.9,
-                  height: MediaQuery.of(context).size.height / 3,
-                  child: MRZCameraOverlay(child: _liveFeedBody())),
-            )
-          : _liveFeedBody(),
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          widget.backgroundWidget,
+          widget.backgroundOverlay,
+          widget.title == null
+              ? const SizedBox()
+              : Positioned(
+                  top: 100,
+                  child: Container(
+                      color: Colors.red,
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height * 0.1,
+                      child: Center(child: widget.title))),
+          widget.showLoader
+              ? Positioned(
+                  bottom: 100,
+                  child: SizedBox(
+                    width: MediaQuery.of(context).size.width,
+                    child: Center(
+                      child: Card(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5)),
+                        color: widget.loaderBackgroundColor,
+                        child: Padding(
+                          padding: const EdgeInsets.all(15.0),
+                          child: SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.8,
+                              height: 5,
+                              child: LinearProgressIndicator(
+                                color: widget.loaderActiveColor,
+                                value: 0.5,
+                              )),
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+              : const SizedBox(),
+          widget.showOverlay
+              ? Center(
+                  child: SizedBox(
+                      width: MediaQuery.of(context).size.width,
+                      height: MediaQuery.of(context).size.height / 2,
+                      child: Center(
+                          child: MRZCameraOverlay(child: _liveFeedBody()))),
+                )
+              : _liveFeedBody(),
+        ],
+      ),
     );
   }
 
   Widget _liveFeedBody() {
     if (_controller?.value.isInitialized == false ||
         _controller?.value.isInitialized == null) {
-      return Container();
+      return Container(
+        color: Colors.red,
+      );
     }
     if (_controller?.value.isInitialized == false) {
-      return Container();
+      return Container(
+        color: Colors.red,
+      );
     }
 
-    final size = MediaQuery.of(context).size / 2;
+    final size = MediaQuery.of(context).size;
     // calculate scale depending on screen and camera ratios
     // this is actually size.aspectRatio / (1 / camera.aspectRatio)
     // because camera preview size is received as landscape
     // but we're calculating for portrait orientation
-    var scale = size.aspectRatio * _controller!.value.aspectRatio;
+    var scale = (size.aspectRatio * _controller!.value.aspectRatio);
     // to prevent scaling down, invert the value
     if (scale < 1) scale = 1 / scale;
 
-    return Container(
-      color: Colors.black,
-      child: Stack(
-        fit: StackFit.expand,
-        children: <Widget>[
-          Transform.scale(
-            scale: scale,
-            child: CameraPreview(_controller!),
-          ),
-        ],
-      ),
-    );
+    return SizedBox(
+        height: 250,
+        child: Stack(
+          children: <Widget>[
+            SizedBox(
+                width: MediaQuery.of(context).size.width * 0.8,
+                child: CameraPreview(_controller!)),
+          ],
+        ));
   }
 
   Future _startLiveFeed() async {
     final camera = cameras[_cameraIndex];
-    _controller = CameraController(
-      camera,
-      ResolutionPreset.high,
-      enableAudio: false,
-    );
+    _controller = CameraController(camera, ResolutionPreset.high,
+        enableAudio: false, imageFormatGroup: ImageFormatGroup.jpeg);
     _controller?.initialize().then((_) {
       if (!mounted) {
         return;
@@ -152,16 +206,6 @@ class MRZCameraViewState extends State<MRZCameraView> {
     final inputImageFormat =
         InputImageFormatValue.fromRawValue(image.format.raw);
     if (inputImageFormat == null) return;
-
-    // final planeData = image.planes.map(
-    //   (Plane plane) {
-    //     return InputImagePlaneMetadata(
-    //       bytesPerRow: plane.bytesPerRow,
-    //       height: plane.height,
-    //       width: plane.width,
-    //     );
-    //   },
-    // ).toList();
 
     final inputImageData = InputImageMetadata(
       size: imageSize,

@@ -1,21 +1,37 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
+
 import 'package:mrz_scanner/mrz_scanner.dart';
+
 import 'camera_view.dart';
 import 'mrz_helper.dart';
 
 class MRZScanner extends StatefulWidget {
   const MRZScanner({
+    Key? key,
     Key? controller,
-    required this.onSuccess,
     this.initialDirection = CameraLensDirection.back,
+    this.onSuccess,
     this.showOverlay = true,
+    required this.backgroundWidget,
+    required this.backgroundOverlay,
+    required this.title,
+    required this.loaderBackgroundColor,
+    required this.showLoader,
+    required this.loaderActiveColor,
   }) : super(key: controller);
-  final Function(MRZResult mrzResult, List<String> lines, InputImage? image)
+  final Function(MRZResult mrzResult, List<String> lines, InputImage? image)?
       onSuccess;
   final CameraLensDirection initialDirection;
   final bool showOverlay;
+
+  final Widget backgroundWidget;
+  final Widget backgroundOverlay;
+  final Widget title;
+  final Color loaderBackgroundColor;
+  final bool showLoader;
+  final Color loaderActiveColor;
   @override
   MRZScannerState createState() => MRZScannerState();
 }
@@ -41,6 +57,12 @@ class MRZScannerState extends State<MRZScanner> {
       showOverlay: widget.showOverlay,
       initialDirection: widget.initialDirection,
       onImage: _processImage,
+      showLoader: true,
+      backgroundWidget: widget.backgroundWidget,
+      loaderActiveColor: widget.loaderActiveColor,
+      loaderBackgroundColor: widget.loaderBackgroundColor,
+      backgroundOverlay: widget.backgroundOverlay,
+      title: widget.title,
     );
   }
 
@@ -49,7 +71,7 @@ class MRZScannerState extends State<MRZScanner> {
       final data = MRZParser.parse(lines);
       _isBusy = true;
 
-      widget.onSuccess(data, lines, image);
+      widget.onSuccess!(data, lines, image);
     } catch (e) {
       _isBusy = false;
     }

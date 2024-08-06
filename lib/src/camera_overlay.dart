@@ -19,14 +19,6 @@ class MRZCameraOverlay extends StatelessWidget {
         return Stack(
           children: [
             child,
-            ClipPath(
-              clipper: _DocumentClipper(rect: overlayRect),
-              child: Container(
-                foregroundDecoration: const BoxDecoration(
-                  color: Color.fromRGBO(0, 0, 0, 0.45),
-                ),
-              ),
-            ),
             _WhiteOverlay(rect: overlayRect),
           ],
         );
@@ -85,7 +77,6 @@ class _WhiteOverlay extends StatelessWidget {
         width: rect.width,
         height: rect.height,
         decoration: BoxDecoration(
-          border: Border.all(width: 2.0, color: const Color(0xFFFFFFFF)),
           borderRadius: BorderRadius.all(rect.tlRadius),
         ),
       ),
