@@ -19,6 +19,7 @@ class MRZScanner extends StatefulWidget {
     required this.loaderBackgroundColor,
     required this.showLoader,
     required this.loaderActiveColor,
+    required this.border,
     this.topDst = 100,
     this.bottomDst = 100,
   }) : super(key: controller);
@@ -34,6 +35,7 @@ class MRZScanner extends StatefulWidget {
   final bool showLoader;
   final Color loaderActiveColor;
   final double topDst;
+  final Color border;
   final double bottomDst;
   @override
   MRZScannerState createState() => MRZScannerState();
@@ -68,6 +70,7 @@ class MRZScannerState extends State<MRZScanner> {
       title: widget.title,
       distanceBottom: widget.bottomDst,
       distaneTop: widget.topDst,
+      borderColor: widget.border,
     );
   }
 

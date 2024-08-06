@@ -19,6 +19,7 @@ class MRZCameraView extends StatefulWidget {
     this.title,
     this.distanceBottom = 100,
     this.distaneTop = 100,
+    required this.borderColor,
     this.showLoader = true,
   }) : super(key: key);
 
@@ -33,6 +34,7 @@ class MRZCameraView extends StatefulWidget {
   final Color loaderActiveColor;
   final double distaneTop;
   final double distanceBottom;
+  final Color borderColor;
 
   @override
   MRZCameraViewState createState() => MRZCameraViewState();
@@ -166,7 +168,18 @@ class MRZCameraViewState extends State<MRZCameraView> {
           children: <Widget>[
             SizedBox(
                 width: MediaQuery.of(context).size.width * 0.8,
-                child: CameraPreview(_controller!)),
+                child: CustomPaint(
+                    foregroundPainter: BorderPainter(color: widget.borderColor),
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        CameraPreview(_controller!),
+                        Divider(
+                          color: widget.borderColor,
+                          thickness: 5,
+                        )
+                      ],
+                    ))),
           ],
         ));
   }
@@ -222,4 +235,41 @@ class MRZCameraViewState extends State<MRZCameraView> {
 
     widget.onImage(inputImage);
   }
+}
+
+class BorderPainter extends CustomPainter {
+  final Color color;
+  BorderPainter({
+    required this.color,
+  });
+  @override
+  void paint(Canvas canvas, Size size) {
+    double sh = size.height; // for convenient shortage
+    double sw = size.width; // for convenient shortage
+    double cornerSide = sh * 0.2; // desirable value for corners side
+
+    Paint paint = Paint()
+      ..color = color
+      ..strokeWidth = 35
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+
+    Path path = Path()
+      ..moveTo(cornerSide, 0)
+      ..quadraticBezierTo(0, 0, 0, cornerSide)
+      ..moveTo(0, sh - cornerSide)
+      ..quadraticBezierTo(0, sh, cornerSide, sh)
+      ..moveTo(sw - cornerSide, sh)
+      ..quadraticBezierTo(sw, sh, sw, sh - cornerSide)
+      ..moveTo(sw, cornerSide)
+      ..quadraticBezierTo(sw, 0, sw - cornerSide, 0);
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(BorderPainter oldDelegate) => false;
+
+  @override
+  bool shouldRebuildSemantics(BorderPainter oldDelegate) => false;
 }
