@@ -91,8 +91,7 @@ class MRZCameraViewState extends State<MRZCameraView> {
               ? const SizedBox()
               : Positioned(
                   top: 100,
-                  child: Container(
-                      color: Colors.red,
+                  child: SizedBox(
                       width: MediaQuery.of(context).size.width,
                       height: MediaQuery.of(context).size.height * 0.1,
                       child: Center(child: widget.title))),
