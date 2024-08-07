@@ -143,14 +143,10 @@ class MRZCameraViewState extends State<MRZCameraView> {
   Widget _liveFeedBody() {
     if (_controller?.value.isInitialized == false ||
         _controller?.value.isInitialized == null) {
-      return Container(
-        color: Colors.red,
-      );
+      return Container();
     }
     if (_controller?.value.isInitialized == false) {
-      return Container(
-        color: Colors.red,
-      );
+      return Container();
     }
 
     final size = MediaQuery.of(context).size;
