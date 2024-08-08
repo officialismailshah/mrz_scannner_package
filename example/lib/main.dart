@@ -25,6 +25,7 @@ class _MyAppState extends State<MyApp> {
           width: 200,
           height: 200,
           child: MRZScanner(
+            border: Colors.red,
             loaderActiveColor: Colors.orange,
             loaderBackgroundColor: Colors.purple,
             showLoader: true,
