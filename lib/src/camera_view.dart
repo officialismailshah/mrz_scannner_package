@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:google_mlkit_commons/google_mlkit_commons.dart';
-
+import 'dart:math' as math;
 import 'camera_overlay.dart';
 
 class MRZCameraView extends StatefulWidget {
@@ -148,15 +148,27 @@ class MRZCameraViewState extends State<MRZCameraView> {
     if (_controller?.value.isInitialized == false) {
       return Container();
     }
+    _controller!.setZoomLevel(1);
 
-    final size = MediaQuery.of(context).size;
+    // final size = MediaQuery.of(context).size;
     // calculate scale depending on screen and camera ratios
     // this is actually size.aspectRatio / (1 / camera.aspectRatio)
     // because camera preview size is received as landscape
     // but we're calculating for portrait orientation
-    var scale = (size.aspectRatio * _controller!.value.aspectRatio);
+    // var scale = (size.aspectRatio * _controller!.value.aspectRatio);
     // to prevent scaling down, invert the value
-    if (scale < 1) scale = 1 / scale;
+    // if (scale < 1) scale = 1 / scale;
+    var tmp = MediaQuery.of(context).size;
+
+    final screenH = math.max(tmp.height, tmp.width);
+    final screenW = math.min(tmp.height, tmp.width);
+
+    tmp = _controller!.value.previewSize!;
+
+    final previewH = math.max(tmp.height, tmp.width);
+    final previewW = math.min(tmp.height, tmp.width);
+    final screenRatio = screenH / screenW;
+    final previewRatio = previewH / previewW;
 
     return SizedBox(
         height: 250,
@@ -169,7 +181,19 @@ class MRZCameraViewState extends State<MRZCameraView> {
                     child: Stack(
                       fit: StackFit.expand,
                       children: [
-                        CameraPreview(_controller!),
+                        ClipRRect(
+                          child: OverflowBox(
+                            maxHeight: screenRatio > previewRatio
+                                ? screenH
+                                : screenW / previewW * previewH,
+                            maxWidth: screenRatio > previewRatio
+                                ? screenH / previewH * previewW
+                                : screenW,
+                            child: CameraPreview(
+                              _controller!,
+                            ),
+                          ),
+                        ),
                         Divider(
                           color: widget.borderColor,
                           thickness: 5,
