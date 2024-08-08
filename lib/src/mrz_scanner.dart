@@ -1,8 +1,8 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
-
 import 'package:mrz_scanner/mrz_scanner.dart';
-
+import 'package:image/image.dart' as dartImage;
 import 'camera_view.dart';
 import 'mrz_helper.dart';
 
@@ -23,7 +23,7 @@ class MRZScanner extends StatefulWidget {
     this.topDst = 100,
     this.bottomDst = 100,
   }) : super(key: controller);
-  final Function(MRZResult mrzResult, List<String> lines, InputImage? image)?
+  final Function(MRZResult mrzResult, List<String> lines, Uint8List? image)?
       onSuccess;
   final CameraLensDirection initialDirection;
   final bool showOverlay;
@@ -78,8 +78,8 @@ class MRZScannerState extends State<MRZScanner> {
     try {
       final data = MRZParser.parse(lines);
       _isBusy = true;
-
-      widget.onSuccess!(data, lines, image);
+      dartImage.Image img=  MRZHelper.decodeYUV420SP(image);
+      widget.onSuccess!(data, lines, dartImage.encodeJpg(img));
     } catch (e) {
       _isBusy = false;
     }

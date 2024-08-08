@@ -73,7 +73,7 @@ class MRZCameraViewState extends State<MRZCameraView> {
         );
       }
     } catch (e) {
-      print(e);
+      debugPrint(e as String?);
     }
 
     _startLiveFeed();

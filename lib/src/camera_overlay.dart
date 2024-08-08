@@ -44,8 +44,8 @@ class MRZCameraOverlay extends StatelessWidget {
   }
 }
 
-class _DocumentClipper extends CustomClipper<Path> {
-  _DocumentClipper({
+class DocumentClipper extends CustomClipper<Path> {
+  DocumentClipper({
     required this.rect,
   });
 
@@ -58,7 +58,7 @@ class _DocumentClipper extends CustomClipper<Path> {
     ..fillType = PathFillType.evenOdd;
 
   @override
-  bool shouldReclip(_DocumentClipper oldClipper) => false;
+  bool shouldReclip(DocumentClipper oldClipper) => false;
 }
 
 class _WhiteOverlay extends StatelessWidget {
