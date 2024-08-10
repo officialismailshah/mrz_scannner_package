@@ -23,7 +23,7 @@ class MRZCameraView extends StatefulWidget {
     this.showLoader = true,
   }) : super(key: key);
 
-  final Function(InputImage inputImage) onImage;
+  final Function(InputImage inputImage, CameraController c) onImage;
   final CameraLensDirection initialDirection;
   final bool showOverlay;
   final Widget backgroundWidget;
@@ -41,7 +41,7 @@ class MRZCameraView extends StatefulWidget {
 }
 
 class MRZCameraViewState extends State<MRZCameraView> {
-  CameraController? _controller;
+  CameraController? controller;
   int _cameraIndex = 0;
   List<CameraDescription> cameras = [];
 
@@ -50,6 +50,8 @@ class MRZCameraViewState extends State<MRZCameraView> {
     super.initState();
     initCamera();
   }
+
+ 
 
   initCamera() async {
     cameras = await availableCameras();
@@ -81,7 +83,6 @@ class MRZCameraViewState extends State<MRZCameraView> {
 
   @override
   void dispose() {
-    _stopLiveFeed();
     super.dispose();
   }
 
@@ -141,29 +142,21 @@ class MRZCameraViewState extends State<MRZCameraView> {
   }
 
   Widget _liveFeedBody() {
-    if (_controller?.value.isInitialized == false ||
-        _controller?.value.isInitialized == null) {
+    if (controller?.value.isInitialized == false ||
+        controller?.value.isInitialized == null) {
       return Container();
     }
-    if (_controller?.value.isInitialized == false) {
+    if (controller?.value.isInitialized == false) {
       return Container();
     }
-    _controller!.setZoomLevel(1);
+    controller!.setZoomLevel(1);
 
-    // final size = MediaQuery.of(context).size;
-    // calculate scale depending on screen and camera ratios
-    // this is actually size.aspectRatio / (1 / camera.aspectRatio)
-    // because camera preview size is received as landscape
-    // but we're calculating for portrait orientation
-    // var scale = (size.aspectRatio * _controller!.value.aspectRatio);
-    // to prevent scaling down, invert the value
-    // if (scale < 1) scale = 1 / scale;
     var tmp = MediaQuery.of(context).size;
 
     final screenH = math.max(tmp.height, tmp.width);
     final screenW = math.min(tmp.height, tmp.width);
 
-    tmp = _controller!.value.previewSize!;
+    tmp = controller!.value.previewSize!;
 
     final previewH = math.max(tmp.height, tmp.width);
     final previewW = math.min(tmp.height, tmp.width);
@@ -190,7 +183,7 @@ class MRZCameraViewState extends State<MRZCameraView> {
                                 ? screenH / previewH * previewW
                                 : screenW,
                             child: CameraPreview(
-                              _controller!,
+                              controller!,
                             ),
                           ),
                         ),
@@ -206,22 +199,22 @@ class MRZCameraViewState extends State<MRZCameraView> {
 
   Future _startLiveFeed() async {
     final camera = cameras[_cameraIndex];
-    _controller = CameraController(camera, ResolutionPreset.high,
+    controller = CameraController(camera, ResolutionPreset.high,
         enableAudio: false, imageFormatGroup: ImageFormatGroup.jpeg);
-    _controller?.initialize().then((_) {
+    controller?.initialize().then((_) {
       if (!mounted) {
         return;
       }
 
-      _controller?.startImageStream(_processCameraImage);
+      controller?.startImageStream(_processCameraImage);
       setState(() {});
     });
   }
 
   Future _stopLiveFeed() async {
-    await _controller?.stopImageStream();
-    await _controller?.dispose();
-    _controller = null;
+    await controller?.stopImageStream();
+    await controller?.dispose();
+    controller = null;
   }
 
   Future _processCameraImage(CameraImage image) async {
@@ -253,7 +246,7 @@ class MRZCameraViewState extends State<MRZCameraView> {
     final inputImage =
         InputImage.fromBytes(bytes: bytes, metadata: inputImageData);
 
-    widget.onImage(inputImage);
+    widget.onImage(inputImage, controller!);
   }
 }
 

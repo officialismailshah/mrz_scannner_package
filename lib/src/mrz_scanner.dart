@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:mrz_scanner/mrz_scanner.dart';
@@ -74,18 +75,23 @@ class MRZScannerState extends State<MRZScanner> {
     );
   }
 
-  void _parseScannedText(List<String> lines, InputImage image) {
+  void _parseScannedText(
+      List<String> lines, InputImage image, CameraController? c) {
     try {
       final data = MRZParser.parse(lines);
       _isBusy = true;
-      dartImage.Image img=  MRZHelper.decodeYUV420SP(image);
+      dartImage.Image img = MRZHelper.decodeYUV420SP(image);
       widget.onSuccess!(data, lines, dartImage.encodeJpg(img));
+      c!.stopImageStream();
+      c = null;
+      c?.dispose();
     } catch (e) {
       _isBusy = false;
     }
   }
 
-  Future<void> _processImage(InputImage inputImage) async {
+  Future<void> _processImage(
+      InputImage inputImage, CameraController controller) async {
     if (!_canProcess) return;
     if (_isBusy) return;
     _isBusy = true;
@@ -104,7 +110,7 @@ class MRZScannerState extends State<MRZScanner> {
     List<String>? result = MRZHelper.getFinalListToParse([...ableToScanText]);
 
     if (result != null) {
-      _parseScannedText([...result], inputImage);
+      _parseScannedText([...result], inputImage, controller);
     } else {
       _isBusy = false;
     }
